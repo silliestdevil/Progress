@@ -426,7 +426,7 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
       col.r = random(0,255);
       col.g = random(0,255);
       col.b = random(0,255);
-      document.getElementById('colorSquare').style.backgroundColor = col.r, col.b, col.g;
+      document.getElementById('compareSquare').style.backgroundColor = col.r, col.b, col.g;
     }
 
 
