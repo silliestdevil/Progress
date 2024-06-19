@@ -401,17 +401,17 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
   fetch("http://172.20.10.4:3000/colour")
     .then(res => res.json())
     .then(res => {
-      let objB = res.find(o => o.colour === 'B');
-      let objG = res.find(o => o.colour === 'G');
+      let valB = res.B;
+      let valG = res.G;
 
-       if (objB !== undefined) {
-        document.getElementById('blue').value = objB.value; // Assuming objB.value is the correct value
-        console.log(objB);
+       if (valB !== undefined) {
+        document.getElementById('blue').value = valB; // Assuming objB.value is the correct value
+        console.log(valB);
        }
 
-   if (objG !== undefined) {
-       document.getElementById('green').value = objG.value; // Assuming objG.value is the correct value
-       console.log(objG);
+   if (valG !== undefined) {
+       document.getElementById('green').value = valG; // Assuming objG.value is the correct value
+       console.log(valG);
        }
 
       var red = document.getElementById('red').value;

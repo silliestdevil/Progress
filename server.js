@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const app = express()
 let state = "waiting..."
-let colours = []
+let colours = {R:0, B:0, G:0}
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -23,8 +23,7 @@ app.get('/colour', (req, res) => { //get request
 });
 
 app.post('/colour', (req, res) => { //post request 
-  console.log('in colour', req.body);
-  colours.push(req.body);
+  colours[req.body.colour] = req.body.value;
   res.send(JSON.stringify(colours));
 });
 

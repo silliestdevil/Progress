@@ -394,21 +394,21 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
 }
 
  function myColor(){
-  fetch("http://172.20.10.4:3000/colour")
-    .then(res => res.json())
-    .then(res => {
-      let objR = res.find(o => o.colour === 'R');
-      let objG = res.find(o => o.colour === 'G');
-
-       if (objR !== undefined) {
-        document.getElementById('red').value = objR.value; // Assuming objB.value is the correct value
-        console.log('hello', objR); 
-       }
-
-   if (objG !== undefined) {
-       document.getElementById('green').value = objG.value; // Assuming objG.value is the correct value
-       console.log(objG);
-       }
+      fetch("http://172.20.10.4:3000/colour")
+      .then(res => res.json())
+      .then(res => {
+        let valR = res.R;
+        let valG = res.G;
+  
+         if (valR !== undefined) {
+          document.getElementById('red').value = valR; // Assuming objB.value is the correct value
+          console.log(valR);
+         }
+  
+     if (valG !== undefined) {
+         document.getElementById('green').value = valG; // Assuming objG.value is the correct value
+         console.log(valG);
+         }
 
       var red = document.getElementById('red').value;
       var green = document.getElementById('green').value;
