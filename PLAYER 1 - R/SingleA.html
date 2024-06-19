@@ -154,30 +154,36 @@ function colourBlock(){ //The Colour square that is the value of the R,G or B re
     fetch("http://172.20.10.4:3000/colour")
       .then(res => res.json())
       .then(res => {
-        let objB = res.find(o => o.colour === 'B'); //if the B value is recieved
-        let objG = res.find(o => o.colour === 'G'); //if the G value is recieved
+      let valB = res.B;
+      let valG = res.G;
         
-
-        if (objB) {//B value recieved
-          console.log(objB);
+        if (valB) {
+          console.log(valB);
           setTimeout(() => {
             if (tryingToNavigate == false)//to make sure the html redirects as the next p5 sketch is drawn
-            window.location.href = "SecondA1.html"; // Redirect to SecondA1 after 3 seconds R and B colour output 
-            tryingToNavigate = true;
+      window.location.href = "SecondA1.html";  // Open the next interface
+          tryingToNavigate = true;
           }, 3000); // 3000 milliseconds = 3 seconds
-        } else if (objG) {//G value recieved
-          console.log(objG);
+        } else if (valG) {
+          console.log(valG);
           setTimeout(() => {
             if (tryingToNavigate == false)//to make sure the html redirects as the next p5 sketch is drawn
-            window.location.href = "SecondA.html"; // Redirect to SecondA2 after 3 seconds R and G colour output 
-            tryingToNavigate = true;
+      window.location.href = "SecondA.html";  // Open the next interface
+          tryingToNavigate = true;
           }, 3000); // 3000 milliseconds = 3 seconds
+        } else {
+          setTimeout(() => {
+            if (tryingToNavigate == false)//to make sure the html redirects as the next p5 sketch is drawn
+      window.location.href = "Index.html";  // Open the next interface
+          tryingToNavigate = true;
+          }, 30000); // 3000 milliseconds = 3 seconds
         }
+
       })
       .catch(error => console.error('Error:', error));
   }
-}
 
+}
 
 
     </script>

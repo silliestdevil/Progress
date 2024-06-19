@@ -1,3 +1,5 @@
+<!-- COUNTDOWN FOR FACE TRACKING-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,9 +8,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.js"></script>
     <title>Document</title>
 </head>
+<!-- no scroll and black background -->
 <body style=" overflow-y: hidden;  overflow-x: hidden; background-color: rgb(0, 0, 0);">
     <script>
-        let countdown = 5; // Initialize countdown to 5 seconds
+
+let countdown = 5; // Initialize countdown to 5 seconds
 let startTime;
 let frameCount = 0; // Keeps track of the frame count
 let delayFrames = 30; // Number of frames to wait before starting to type the first letter
@@ -16,32 +20,117 @@ let delayBetweenLetters = 10; // Number of frames between each letter being adde
 let waitingText = "Waiting..."; // Text to display with typewriter effect
 let letters = []; // Array to hold the letters as they are added
 let nextLetterTime = 0; // Time to add the next letter
+let addedW = false;
+let letters2 = [];  
+let lettersToAdd2 = [ "E","V","E","L"," ","1"]; // letters to add on each line array
+
+let myFaceLandmarker;
+let faceLandmarks;
+let myCapture;
+let lastVideoTime = -1;
+let extra;
+
+let noFaceDetectedStartTime = null;
+const NO_FACE_DETECTED_THRESHOLD = 30000;
+
+let eyebrowRaised = false; // Flag to track if eyebrow is raised
+
+let tryingToNavigate = false; //for loading next html
+
+// Works best with just one or two sets of landmarks.
+const trackingConfig = {
+  doAcquireFaceMetrics: true,
+  cpuOrGpuString: "GPU", /* "GPU" or "CPU" */
+  maxNumFaces: 1, // number of faces to track
+};
+
+//------------------------------------------
+//loads the mediapipe Facelandmarker and sets up thhe fileset resolver for vision tasks
+async function preload() {
+  const mediapipe_module = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js');
+  FaceLandmarker = mediapipe_module.FaceLandmarker;
+  FilesetResolver = mediapipe_module.FilesetResolver;
+  
+  const vision = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.7/wasm"
+  );
+  
+  // Face Landmark Tracking:
+  // https://codepen.io/mediapipe-preview/pen/OJBVQJm
+  // https://developers.google.com/mediapipe/solutions/vision/face_landmarker
+	myFaceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+		numFaces: trackingConfig.maxNumFaces,
+		runningMode: "VIDEO",
+		outputFaceBlendshapes:trackingConfig.doAcquireFaceMetrics,
+		baseOptions: {
+			delegate: trackingConfig.cpuOrGpuString,
+			modelAssetPath:
+				"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+		},
+	});
+}
+
+//------------------------------------------
+//function to continously process video frames from the webcam using 'requestAnimationFrame'
+async function predictWebcam() {
+  let startTimeMs = performance.now();
+  if (lastVideoTime !== myCapture.elt.currentTime) {
+    if (myFaceLandmarker) {
+      faceLandmarks = myFaceLandmarker.detectForVideo(myCapture.elt,startTimeMs);
+    }
+    lastVideoTime = myCapture.elt.currentTime;
+  }
+  window.requestAnimationFrame(predictWebcam);
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  myCapture = createCapture(VIDEO);
   startTime = millis(); // Record the start time
+  caption = createGraphics(350, 400); //Canvas for second line of text 
+  caption.background(0); 
 }
 
 function draw() {
   background(0);
-
+  let faceDetected = false;
   let currentTime = millis();
   let elapsedTime = (currentTime - startTime) / 1000; // Calculate elapsed time in seconds
 
+  typography();
   drawText(elapsedTime);
   frameCount++;
 
+  //function to draw the circle
   if (elapsedTime >= 5) {
     drawCircle();
 
     // Update the countdown every second after 5 seconds
     if (frameCount % 60 == 0 && countdown > 0) {
       countdown--;
-    } else if (countdown == 0) {
+    } else if (countdown == 0) { //once the countdown reaches 0 open Face recognition
       window.location.href = "FaceRecognition.html";
     }
   }
+
+  //call all functions and extra canvas
+  predictWebcam(); 
+  
+  if (faceDetected) {
+    noFaceDetectedStartTime = null; // Reset timer when a face is detected
+  } else {
+    if (!noFaceDetectedStartTime) {
+      noFaceDetectedStartTime = millis(); // Start timer when no face is detected
+    } else if (millis() - noFaceDetectedStartTime > NO_FACE_DETECTED_THRESHOLD) {
+      if (!tryingToNavigate) {
+        console.log("No face detected for more than 30 seconds. Redirecting...");
+        window.location.href = "Index.html"; // Redirect to the next interface
+        tryingToNavigate = true; // Mark navigation as initiated
+      }
+    }
+  }
 }
+
 function drawText(elapsedTime) {
   fill(255);
   textSize(25);
@@ -97,6 +186,33 @@ function drawCircle() {
     vertex(x, y);
   }
   endShape();
+}
+
+function typography(){
+  image(caption, 800, 20);
+  push(); // the title
+  caption.fill(255);
+  caption.textSize(25);
+  caption.textFont("monospace");
+
+  if (frameCount < delayFrames && !addedW) { //if frame count is smaller than delayframes add first letter
+    letters2.push("L"); //push the first letter
+    addedW = true; // Indicate that first letter have been added
+    nextLetterTime = frameCount + delayBetweenLetters; // time in between letters
+  }
+
+  if (frameCount >= nextLetterTime && lettersToAdd2.length > 0) {
+    letters2.push(lettersToAdd2.shift()); // Add the next letter from the array
+    nextLetterTime = frameCount + delayBetweenLetters; //add next letter after 10 frames
+  }
+
+  const spacing = 20;// amount of spacing beteen letters 
+  // Display the letters from the array
+  for (let i = 0; i < letters2.length; i++) {
+   caption.text(letters2[i], 140 + i * spacing, 30);//display on the extra canvas, add spacing so letters are clear
+  }
+pop();// the push and pop functions allow me to change the setting for brief parts of the code 
+
 }
 
     </script>

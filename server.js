@@ -27,6 +27,14 @@ app.post('/colour', (req, res) => { //post request
   res.send(JSON.stringify(colours));
 });
 
+app.post('/complete', (req, res) => { //post request 
+  res.send(state);
+});
+
+app.get('/complete', (req, res) => { //post request 
+  res.send(state);
+});
+
 // Server setup
 app.listen(3000, () => {
     console.log("Server is Running")

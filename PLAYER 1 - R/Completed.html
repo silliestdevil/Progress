@@ -102,7 +102,7 @@ function draw() {
     } else if (millis() - noFaceDetectedStartTime > NO_FACE_DETECTED_THRESHOLD) {
       if (!tryingToNavigate) {
         console.log("No face detected for more than 30 seconds. Redirecting...");
-        window.location.href = "index.html"; // Redirect to the next interface
+        window.location.href = "Index.html"; // Redirect to the next interface
         tryingToNavigate = true; // Mark navigation as initiated
       }
     }

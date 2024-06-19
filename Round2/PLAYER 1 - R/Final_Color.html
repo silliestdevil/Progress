@@ -9,6 +9,7 @@
     <title>Single</title>
 </head>
 <body style=" overflow-y: hidden;  overflow-x: hidden; background-color: rgb(0, 0, 0);"> 
+  <div id="colorSquare"></div>
     <script>
         //letter array 
 //RBG = 170, 183, 80
@@ -135,11 +136,23 @@ pop();
 }
 
 function colourBlock(){ //The final colour of R G and B!
-     caption.push()
-    caption.fill(170,183,80);
+    fetch("http://172.20.10.4:3000/colour")
+    .then(res => res.json())
+    .then(res => {
+      let valR = res.R;
+      let valB = res.B;
+      let valG = res.G;
+
+      var color = 'rgb(' + red + ',' + green + ',' + blue + ')';
+
+      caption.push()
+    caption.fill(valR,valB,valG);
     caption.noStroke();
      caption.rect(25,25,300,300)
     caption.pop()
+    })
+
+
   }
     </script>
 </body>
