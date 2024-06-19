@@ -26,6 +26,9 @@ let lettersToAdd2 = ["R","A","I","S","E"," ","Y","O","U","R"," ","E","Y","E","B"
 
 let tryingToNavigate = false; //for loading next html
 
+let noFaceDetectedStartTime = null;
+const NO_FACE_DETECTED_THRESHOLD = 30000;
+
 // Works best with just one or two sets of landmarks.
 const trackingConfig = {
   doAcquireFaceMetrics: true,
@@ -81,6 +84,8 @@ function setup() {
   myCapture.hide();
   extra = createGraphics(windowWidth,700);  //Intruction text
   extra.background(0);
+  detection = createGraphics(400,400);  //Intruction text
+  detection.background(0,0,0,0.1); 
 }
 
 function draw() { 
@@ -164,13 +169,18 @@ function drawVideoBackground() { //function to draw the webcam video feed as the
 //------------------------------------------
 // Tracks 478 points on the face. 
 function drawFacePoints() { //draw the detected face landmarks
+  let faceDetected = false;
+
 	if (faceLandmarks && faceLandmarks.faceLandmarks) {
 		const nFaces = faceLandmarks.faceLandmarks.length;
-		if (nFaces > 0) {
-			for (let f = 0; f < nFaces; f++) {
-				let aFace = faceLandmarks.faceLandmarks[f];
-				if (aFace) {
-					let nFaceLandmarks = aFace.length;
+	  if (faceLandmarks && faceLandmarks.faceLandmarks) {
+      const nFaces = faceLandmarks.faceLandmarks.length;
+      if (nFaces > 0) {
+        faceDetected = true;
+        for (let f = 0; f < nFaces; f++) {
+          let aFace = faceLandmarks.faceLandmarks[f];
+          if (aFace) {
+            let nFaceLandmarks = aFace.length;
 
 					noFill();
 					stroke("white");
@@ -195,10 +205,32 @@ function drawFacePoints() { //draw the detected face landmarks
 					drawConnectors(aFace, FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS);
 					drawConnectors(aFace, FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS);
 					drawConnectors(aFace, FACELANDMARKER_NOSE); // Google offers no nose
-				}
-			}
-		}
-	}
+        }
+      }
+    }
+  }
+}
+
+image(detection, 200, 200); 
+detection.fill(255);
+detection.textSize(20);
+detection.textFont("Courier")
+
+  if (faceDetected) {
+    noFaceDetectedStartTime = null; // Reset timer when a face is detected
+    detection.clear();
+  } else {
+    if (!noFaceDetectedStartTime) {
+      noFaceDetectedStartTime = millis(); // Start timer when no face is detected
+      detection.text("NO PLAYER DETECTED...", 20, 20)
+    } else if (millis() - noFaceDetectedStartTime > NO_FACE_DETECTED_THRESHOLD) {
+      if (!tryingToNavigate) {
+        console.log("No face detected for more than 30 seconds. Redirecting...");
+        window.location.href = "index.html"; // Redirect to the next interface
+        tryingToNavigate = true; // Mark navigation as initiated
+      }
+    }
+  }
 }
 
 function drawFaceMetrics(){ //draw the calculated face metrics
