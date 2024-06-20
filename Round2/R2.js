@@ -33,6 +33,7 @@ let fillValue;
 let freezeFill = false;
 let lastFillValue = fillValue; // Initialize with the initial fillValue
 
+var col ={r:0, g:0, b:0};
 
 var col ={r:0, g:0, b:0};
 
@@ -425,6 +426,5 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
     document.getElementById('blue').addEventListener('input', myColor);
 
     setInterval(myColor, 50);
-
 
 // Attach setRandomColor function to window.onload event
