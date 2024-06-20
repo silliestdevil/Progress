@@ -185,7 +185,7 @@ function faceDetection(){
   headers: {
     "Content-Type": "application/json"
   },
- body: JSON.stringify({waiting: 'G'})
+ body: JSON.stringify({waiting: 'B'})
 })
   } else {
    if (!noFaceDetectedStartTime) {
@@ -211,7 +211,8 @@ function faceDetection(){
         console.log("All players are waiting");
         push(); 
         bottomWords.fill(255,0,0);
-        bottomWords.text("T H E  G A M E  W I L L  B E G I N", 20, 20); 
+        bottomWords.clear();
+        bottomWords.text("T H E  G A M E  W I L L  B E G I N", 80, 40); 
         setTimeout(() => {
         if (tryingToNavigate == false) //to make sure the html redirects as the next p5 sketch is drawn
         window.location.href = "Countdown.html"; // Redirect after 3 seconds
