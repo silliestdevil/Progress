@@ -200,7 +200,7 @@ function faceDetection(){
   }
 
   image(bottomWords, -bottomWords.width/2, 100);
-  
+  bottomWords.clear();
  // Fetch and process the waiting status
  fetch("http://172.20.10.4:3000/waiting")
     .then(res => res.json())
@@ -210,23 +210,24 @@ function faceDetection(){
         // All players are waiting, perform your action here
         console.log("All players are waiting");
         push(); 
-        bottomWords.fill(255,0,0);
-        bottomWords.clear();
-        bottomWords.text("T H E  G A M E  W I L L  B E G I N", 80, 40); 
+        bottomWords.fill(0,255,0);
+        setInterval(function() {
+        bottomWords.text("T H E  G A M E  W I L L  B E G I N", 100, 100); 
+      }, 20000); // 20 seconds 
         setTimeout(() => {
         if (tryingToNavigate == false) //to make sure the html redirects as the next p5 sketch is drawn
         window.location.href = "Countdown.html"; // Redirect after 3 seconds
         tryingToNavigate = true;
-      }, 3000); // 3000 milliseconds = 3 seconds
+      }, 25000); // 3000 milliseconds = 3 seconds
         pop(); 
       } else {
         // Not all players are waiting
         console.log("Waiting for all players to be ready");
         push(); 
-        bottomWords.fill(0,255,0);
+        bottomWords.fill(255,0,0);
         setInterval(function() {
-    bottomWords.text("W A I T I N G  F O R  O T H E R  P L A Y E R S", 80, 40);
-}, 20000);
+    bottomWords.text("W A I T I N G  F O R  O T H E R  P L A Y E R S", 100, 100);
+}, 20000); // 20 seconds 
       pop(); 
       }
     });
