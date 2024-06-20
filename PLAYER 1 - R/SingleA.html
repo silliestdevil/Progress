@@ -26,10 +26,12 @@ let lettersToAdd3 = ["R","G","B",":","170",",","0",",","0"];
 
 
 let tryingToNavigate = false; //for loading next html
+let noFaceDetectedStartTime = null;
+const NO_FACE_DETECTED_THRESHOLD = 30000;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL); // WEBGL due to animation 
-
+  myCapture = createCapture(VIDEO);
   topWords = createGraphics(650, 100); //Canvas for first line of text
   topWords.background(0);
 

@@ -7,8 +7,8 @@
   <title>Introduction</title>
   <!-- include our CSS files -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.js"></script> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.8.0/lib/p5.js" type="text/javascript" ></script>
     <meta charset="utf-8"/>
     
 </head>
@@ -23,6 +23,7 @@ let letters3 = [];
 let letters4 = [];  
 let letters5 = [];  
 let letters6 = [];  
+let letters7 = []; 
 
 let delayFrames = 240; //delay for letters  
 let addedW = false; // Track if first letter has been added 
@@ -33,13 +34,76 @@ let lettersToAdd2 = ["Y","O","U"," ","A","R","E"," ","O","N"," ","A"," ","M","I"
 let lettersToAdd6 = ["P","L","A","Y","E","R","S"," ","T","O"," ","R","E","C","I","E","V","E"," ","T","H","E"," ","R","G","B"," ","V","A","L","U","E"]; // Letters to add
 let lettersToAdd3 = ["1."," ","Y","O","U"," ","M","U","S","T"," ","N","O","T"," ","U","S","E"," ","Y","O","U","R"," ","V","O","I","C","E"]; // Letters to add
 let lettersToAdd4 = ["2."," ","P","L","E","A","S","E"," ","R","E","M","O","V","E"," ","A","N","Y"," ","G","L","A","S","S","E","S"]; // Letters to add
-let lettersToAdd5 = ["C","L","I","C","K"," ","T","O"," ","S","T","A","R","T"]; // Letters to add
-
+let lettersToAdd7 = [];
+let lettersToAdd8 = [];
 var col ={r:0, g:0, b:0};
 let Decided ={r:0, g:0, b:0};
+let hasBeenCalled = false;
+const spacing = 20; 
+
+let myFaceLandmarker;
+let faceLandmarks;
+let myCapture;
+let lastVideoTime = -1;
+let extra;
+
+let tryingToNavigate = false;
+
+let noFaceDetectedStartTime = null;
+const NO_FACE_DETECTED_THRESHOLD = 30000;
+
+let bottomWords;
+
+const trackingConfig = {
+  doAcquireFaceMetrics: true,
+  cpuOrGpuString: "GPU", /* "GPU" or "CPU" */
+  maxNumFaces: 1, // number of faces to track
+};
+
+//------------------------------------------
+//loads the mediapipe Facelandmarker and sets up thhe fileset resolver for vision tasks
+async function preload() {
+  const mediapipe_module = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js');
+  FaceLandmarker = mediapipe_module.FaceLandmarker;
+  FilesetResolver = mediapipe_module.FilesetResolver;
+  
+  const vision = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.7/wasm"
+  );
+  
+  // Face Landmark Tracking:
+  // https://codepen.io/mediapipe-preview/pen/OJBVQJm
+  // https://developers.google.com/mediapipe/solutions/vision/face_landmarker
+	myFaceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+		numFaces: trackingConfig.maxNumFaces,
+		runningMode: "VIDEO",
+		outputFaceBlendshapes:trackingConfig.doAcquireFaceMetrics,
+		baseOptions: {
+			delegate: trackingConfig.cpuOrGpuString,
+			modelAssetPath:
+				"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+		},
+	});
+}
+
+//------------------------------------------
+//function to continously process video frames from the webcam using 'requestAnimationFrame'
+async function predictWebcam() {
+  let startTimeMs = performance.now();
+  if (lastVideoTime !== myCapture.elt.currentTime) {
+    if (myFaceLandmarker) {
+      faceLandmarks = myFaceLandmarker.detectForVideo(myCapture.elt,startTimeMs);
+    }
+    lastVideoTime = myCapture.elt.currentTime;
+  }
+  window.requestAnimationFrame(predictWebcam);
+}
+
+//-----
+      
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL); // WEBGL due to animation 
-
+  myCapture = createCapture(VIDEO);
   //there is an extra canvas for each line of text
 
   topWords = createGraphics(650, 50); //Canvas for first line of text
@@ -81,7 +145,6 @@ function setup() {
 
   bottomWords.textSize(15); 
   bottomWords.textFont('monospace'); 
-  
 }
 
 
@@ -94,18 +157,109 @@ function draw(){
   stroke(18, 69, 26);
 
  typography(); //call typing function 
- setTimeout(() => {
-  colourDecide();
-          }, 30000); // 3000 milliseconds = 3 seconds
-
+ colourDecide();
+ faceDetection();
 }
 
   function colourDecide(){
+    if (!hasBeenCalled) {
+        hasBeenCalled = true;
   col.r= random(0,255);
   col.g= random(0,255);
   col.b= random(0,255);
   Decided = {r:col.r, b:col.g, g:col.g}; 
   console.log(Decided); 
+}
+}
+
+function faceDetection(){
+ let faceDetected = false;
+  //call all functions and extra canvas
+  predictWebcam(); 
+    
+  if (!faceDetected) {
+    // noFaceDetectedStartTime = null; // Reset timer when a face is detected
+    console.log("Face detected:", faceDetected);
+    fetch("http://172.20.10.4:3000/waiting", {
+  method: "POST", 
+  headers: {
+    "Content-Type": "application/json"
+  },
+ body: JSON.stringify({waiting: 'R'})
+})
+  } else {
+   if (!noFaceDetectedStartTime) {
+     noFaceDetectedStartTime = millis(); // Start timer when no face is detected
+   } else if (millis() - noFaceDetectedStartTime > NO_FACE_DETECTED_THRESHOLD) {
+      if (!tryingToNavigate) {
+       console.log("No face detected for more than 30 seconds. Redirecting...");
+       window.location.href = "Index.html"; // Redirect to the next interface
+       tryingToNavigate = true; // Mark navigation as initiated
+     }
+    }
+  }
+
+  image(bottomWords, -bottomWords.width/2, 100);
+  
+ // Fetch and process the waiting status
+ fetch("http://172.20.10.4:3000/waiting")
+    .then(res => res.json())
+    .then(waitings => {
+      // Check if all players are waiting
+      if (waitings.R && waitings.G && waitings.B) {
+        // All players are waiting, perform your action here
+        console.log("All players are waiting");
+        push(); 
+        bottomWords.fill(255,0,0);
+        bottomWords.text("T H E  G A M E  W I L L  B E G I N", 20, 20); 
+        setTimeout(() => {
+        if (tryingToNavigate == false) //to make sure the html redirects as the next p5 sketch is drawn
+        window.location.href = "Countdown.html"; // Redirect after 3 seconds
+        tryingToNavigate = true;
+      }, 3000); // 3000 milliseconds = 3 seconds
+        pop(); 
+      } else {
+        // Not all players are waiting
+        console.log("Waiting for all players to be ready");
+        push(); 
+        bottomWords.fill(0,255,0);
+        setInterval(function() {
+    bottomWords.text("W A I T I N G  F O R  O T H E R  P L A Y E R S", 80, 40);
+}, 20000);
+      pop(); 
+      }
+    });
+
+  // // Only execute the below logic once every draw call
+  // lettersToAdd7 = ["T", "H", "E", " ", "G", "A", "M", "E", " ", "W", "I", "L", "L", " ", "B", "E", "G", "I", "N", ".", ".", "."]; 
+  // lettersToAdd8 = ["W", "A", "I", "T", "I", "N", "G", " ", "F", "O", "R", " ", "O", "T", "H", "E", "R", " ", "P", "L", "A", "Y", "E", "R", "S", ".", ".", "."];
+  // bottomWords.clear();
+  // bottomWords.fill(255);
+
+  // if (frameCount < delayBetweenLetters && !addedW) {
+  //   letters7.push("C"); // Add "C" only once, assuming "C" is the starting letter
+  //   // addedW = true; // Indicate that "C" has been added
+  //    nextLetterTime = frameCount + delayBetweenLetters;
+  // }
+
+  // if (frameCount >= nextLetterTime && lettersToAdd7.length > 0) {
+  //   letters7.push(lettersToAdd7.shift()); // Add the next letter from the array
+  //   nextLetterTime = frameCount + delayBetweenLetters; // Add next letter after delayBetweenLetters frames
+  // } else if (frameCount >= nextLetterTime && lettersToAdd8.length > 0) {
+  //   letters7.push(lettersToAdd8.shift()); // Add the next letter from the array
+  //   nextLetterTime = frameCount + delayBetweenLetters; // Add next letter after delayBetweenLetters frames
+  // }
+
+  // const spacing = 20;
+  // // Display the letters from the array
+  // for (let i = 0; i < letters7.length; i++) {
+  //   bottomWords.text(letters7[i], 190 + i * spacing, 30);
+  // }
+
+  // // Render the bottomWords graphics onto the canvas
+  // image(bottomWords, -bottomWords.width / 2, 200);
+
+  // frameCount++; // Increment frame count
 }
 
 
@@ -118,8 +272,6 @@ image(midWords, -midWords.width/2, -100);
 image(midWordsA, -midWordsA.width/2, -50);
 image(midWords2, -midWords2.width/2, 0);
 image(midWords3, -midWords3.width/2, 50);
-image(bottomWords, -bottomWords.width/2, 200);
-
   push(); // the title
   topWords.fill(255);
 
@@ -227,34 +379,7 @@ pop();// the push and pop functions allow me to change the setting for brief par
   }
 pop();// the push and pop functions allow me to change the setting for brief parts of the code 
 
-push(); // repeat for second part of code 
-
-  bottomWords.fill(255);
-  if (frameCount < delayFrames && !addedW) {
-    letters5.push("C"); // Add "W" only once
-    addedW = true; // indicate that "W" has been added
-    nextLetterTime = frameCount + delayBetweenLetters;
-  }
-
-  if (frameCount >= nextLetterTime && lettersToAdd5.length > 0) {
-    letters5.push(lettersToAdd5.shift()); // Add the next letter from the array
-    nextLetterTime = frameCount + delayBetweenLetters; //add next letter after 10 frames
-  }
-
-  const spacing5 = 20;
-  // Display the letters from the array
-  for (let i = 0; i < letters5.length; i++) {
-   bottomWords.text(letters5[i], 190 + i * spacing5, 30);
-  }
-pop(); 
 }
-//    // This function will be called when the mouse is pressed
-//   function mouseIsPressed() {
-//    window.location.href = "Countdown.html";  // Open the next html which will lead to the countdown
-//  }
-
-//  // Add an event listener for the mouse press event
-//  document.addEventListener("mousedown", mouseIsPressed)
 
 </script>
 

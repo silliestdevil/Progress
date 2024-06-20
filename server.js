@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require('body-parser');
 const app = express()
-let state = "waiting..."
+let waitings = {R:false, G:false, B:false}
 let colours = {R:0, B:0, G:0}
 let DecideColours = {R:0, B:0, G:0}
 let complete = {R:false, G:false, B:false}
@@ -13,11 +13,16 @@ app.use(function(req, res, next) {
   next();
 });
 
-// Handling GET /hello request
-app.get("/waiting", (req, res, next) => { //waiting not currently in use but will incorporate for knowing when three players have joined
-   console.log('waiting...', req.socket.remoteAddress);
-  res.send(state);
- })
+app.get("/waiting", (req, res, next) => {
+  res.json(waitings);
+});
+
+app.post('/waiting', (req, res) => {
+  console.log("Received waiting request");
+  waitings[req.body.waiting] = true;
+  console.log("Updated waitings:", waitings);
+  res.json(waitings);
+});
 
 app.get('/colour', (req, res) => { //get request
   res.send(JSON.stringify(colours));
