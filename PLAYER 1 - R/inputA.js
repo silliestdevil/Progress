@@ -229,7 +229,7 @@ detection.textFont("Courier")
         window.location.href = "Index.html"; // Redirect to the next interface
         tryingToNavigate = true; // Mark navigation as initiated
       }
-    }
+    }//hello
   }
 }
 
