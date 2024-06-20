@@ -34,6 +34,8 @@ let freezeFill = false;
 let lastFillValue = fillValue; // Initialize with the initial fillValue
 
 
+var col ={r:0, g:0, b:0};
+
 // Works best with just one or two sets of landmarks.
 const trackingConfig = {
   doAcquireFaceMetrics: true,
@@ -106,7 +108,6 @@ function draw() {
   myColor();
   extra.textSize(18);
   extra.textFont("Courier")
-  getRandomColor();
 }
 
 //The text typing 
@@ -412,6 +413,10 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
       // document.body.style.backgroundColor = color; 
       document.getElementById('box').value = color;
       document.getElementById('colorSquare').style.backgroundColor = color;
+      col.r = random(0,255);
+      col.g = random(0,255);
+      col.b = random(0,255);
+      document.getElementById('compareSquare').style.backgroundColor = (col.r, col.b, col.g);
     }
   )}
 
@@ -421,18 +426,5 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
 
     setInterval(myColor, 50);
 
-    function getRandomColor() {
-      var color = '#';
-      for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    }
-
-
-    
-    window.onload = function() {
-      document.body.style.backgroundColor = getRandomColor();
-    };
 
 // Attach setRandomColor function to window.onload event

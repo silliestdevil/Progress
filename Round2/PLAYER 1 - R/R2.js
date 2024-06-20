@@ -97,7 +97,6 @@ function setup() {
   extra = createGraphics(windowWidth, 700);  // Instruction text
   extra.background(0);
   ColourPalette = createGraphics(300, 600); 
- 
 }
 function draw() { 
   background("black");
@@ -111,7 +110,6 @@ function draw() {
   myColor();
   extra.textSize(18);
   extra.textFont("Courier")
-  getRandomColor();
 }
 
 //The text typing 
@@ -434,18 +432,7 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
 
     setInterval(myColor, 50);
 
-    function getRandomColor() {
-      var color = '#';
-      for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    }
+ 
 
-
-    
-    window.onload = function() {
-      document.body.style.backgroundColor = getRandomColor();
-    };
 
 // Attach setRandomColor function to window.onload event

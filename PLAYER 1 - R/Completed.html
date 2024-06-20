@@ -13,7 +13,7 @@
 <body style=" overflow-y: hidden;  overflow-x: hidden; background-color: rgb(34, 153, 84);">
 
     <script>
-      let myFaceLandmarker;
+let myFaceLandmarker;
 let faceLandmarks;
 let myCapture;
 let lastVideoTime = -1;
@@ -150,8 +150,7 @@ function drawCircle() {
 function circleDrawn() {
   // Redirect to Single.html once the circle is fully drawn
   if (angle >= TWO_PI) {
-    console.log('sending');
-
+    console.log('sending'); 
     fetch("http://172.20.10.4:3000/colour", {
       method: "POST", // or 'PUT'
       headers: {"Content-Type": "application/json"},

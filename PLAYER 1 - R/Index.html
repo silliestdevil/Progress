@@ -35,6 +35,8 @@ let lettersToAdd3 = ["1."," ","Y","O","U"," ","M","U","S","T"," ","N","O","T"," 
 let lettersToAdd4 = ["2."," ","P","L","E","A","S","E"," ","R","E","M","O","V","E"," ","A","N","Y"," ","G","L","A","S","S","E","S"]; // Letters to add
 let lettersToAdd5 = ["C","L","I","C","K"," ","T","O"," ","S","T","A","R","T"]; // Letters to add
 
+var col ={r:0, g:0, b:0};
+let Decided ={r:0, g:0, b:0};
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL); // WEBGL due to animation 
 
@@ -92,7 +94,18 @@ function draw(){
   stroke(18, 69, 26);
 
  typography(); //call typing function 
+ setTimeout(() => {
+  colourDecide();
+          }, 30000); // 3000 milliseconds = 3 seconds
 
+}
+
+  function colourDecide(){
+  col.r= random(0,255);
+  col.g= random(0,255);
+  col.b= random(0,255);
+  Decided = {r:col.r, b:col.g, g:col.g}; 
+  console.log(Decided); 
 }
 
 
@@ -235,13 +248,13 @@ push(); // repeat for second part of code
   }
 pop(); 
 }
-   // This function will be called when the mouse is pressed
-  function mouseIsPressed() {
-   window.location.href = "Countdown.html";  // Open the next html which will lead to the countdown
- }
+//    // This function will be called when the mouse is pressed
+//   function mouseIsPressed() {
+//    window.location.href = "Countdown.html";  // Open the next html which will lead to the countdown
+//  }
 
- // Add an event listener for the mouse press event
- document.addEventListener("mousedown", mouseIsPressed)
+//  // Add an event listener for the mouse press event
+//  document.addEventListener("mousedown", mouseIsPressed)
 
 </script>
 

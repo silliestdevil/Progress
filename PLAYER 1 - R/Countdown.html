@@ -37,6 +37,9 @@ let eyebrowRaised = false; // Flag to track if eyebrow is raised
 
 let tryingToNavigate = false; //for loading next html
 
+var col = {r:0, g:0, b:0};
+let decided = {r:0, g:0, b:0};
+
 // Works best with just one or two sets of landmarks.
 const trackingConfig = {
   doAcquireFaceMetrics: true,
@@ -214,6 +217,18 @@ function typography(){
 pop();// the push and pop functions allow me to change the setting for brief parts of the code 
 
 }
+
+function colourDecide(){
+    col.r = random(0,255);
+    col.g = random(0,255);
+    col.b = random(0,255);
+    var coloured = rgb(col.r, col.g, col,b);
+    fetch("http://172.20.10.4:3000/colour", {
+      method: "POST", // Post the R value again if others have connected to the server
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({colour: 'R', value: 170}),
+    })
+  }
 
     </script>
 </body>
