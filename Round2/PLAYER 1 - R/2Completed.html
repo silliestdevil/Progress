@@ -77,20 +77,14 @@ function circleDrawn() {
 }
 
 function checkForPlayer() {
-    fetch("http://172.20.10.4:3000/complete", {
-      method: "POST", // Post the R value again if others have connected to the server
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({colour: 'R', value: COMPLETE}),
-    })
     fetch("http://172.20.10.4:3000/complete")
       .then(res => res.json())
       .then(res => {
-        let objB = res.find(o => o.colour === 'R'); //if the B value is recieved 'colour: 'R', value: COMPLETE'
-        let objG = res.find(o => o.colour === 'G'); //if the G value is recieved 'colour: 'G', value: COMPLETE'
-        
+        let valB = res.B;
+        let valG = res.G;
 
-        if (objB && objG)  {//B value recieved
-          console.log(objB);
+        if (valB && valG)  {//B value recieved
+          console.log(valB)
           setTimeout(() => {
             if (tryingToNavigate == false){//to make sure the html redirects as the next p5 sketch is drawn
             window.location.href = "Final_Colour.html"; // Redirect to SecondA1 after 3 seconds R and B colour output 

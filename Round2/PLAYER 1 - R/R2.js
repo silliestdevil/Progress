@@ -343,7 +343,11 @@ if (jawOpen && jawOpen.score >= 0.4) {
 // If eyebrow is raised, keep fillValue at the last value before eyebrow raise
 if (eyebrowRaised) {
   fillValue = lastFillValue;
-
+  fetch("http://172.20.10.4:3000/complete", {
+    method: "POST", // Post the R value again if others have connected to the server
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({colour: 'R'}),
+  })
   setTimeout(() => {
       window.location.href = "2Completed.html"; // Redirect after 3 seconds
   }, 3000); // 3000 milliseconds = 3 seconds

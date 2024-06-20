@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const app = express()
 let state = "waiting..."
 let colours = {R:0, B:0, G:0}
+let complete = {R:false, G:false, B:false}
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -18,7 +19,6 @@ app.get("/waiting", (req, res, next) => { //waiting not currently in use but wil
  })
 
 app.get('/colour', (req, res) => { //get request
-  console.log('got request', JSON.stringify(colours)) 
   res.send(JSON.stringify(colours));
 });
 
@@ -28,6 +28,9 @@ app.post('/colour', (req, res) => { //post request
 });
 
 app.post('/complete', (req, res) => { //post request 
+  console.log("got here");
+  complete[req.body.colour] = true;
+  console.log("complete", complete); 
   res.send(state);
 });
 
