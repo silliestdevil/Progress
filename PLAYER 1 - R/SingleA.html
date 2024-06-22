@@ -20,14 +20,39 @@ let delayFrames = 240; // 2 seconds to being
 let addedW = false; // Track if first letter has been added 
 let delayBetweenLetters = 5; // 1/6 of a second between letters
 let nextLetterTime = 0; // Track when to add the next letter
-let lettersToAdd = ["O","U","R"," ","R"," ","V","A","L","U","E"," ","I","S"," ","R","G","B",":","170"," ", ",","?",",","?"]; // Letters to add
-let lettersToAdd2 = ["W","A","I","T","I","N","G"," ","F","O","R"," ","O","T","H","E","R"," ","P","L","A","Y","E","R","S",".",".","."]; // Letters to add
-let lettersToAdd3 = ["R","G","B",":","170",",","0",",","0"];
+let definedR; 
+let definedB;
+let definedG; 
 
+let lettersToAdd;
+let lettersToAdd2 = ["W", "A", "I", "T", "I", "N", "G", " ", "F", "O", "R", " ", "O", "T", "H", "E", "R", " ", "P", "L", "A", "Y", "E", "R", "S", ".", ".", "."];
+let lettersToAdd3;
+
+fetch("http://172.20.10.4:3000/Decidecolour")
+    .then(res => res.json())
+    .then(res => {
+      let valR = res.R;
+     console.log(valR);
+      
+      if (valR !== undefined) {
+        definedR = Math.ceil(valR);
+         
+        // console.log(definedR);
+          // Now create the arrays after definedR is set
+           lettersToAdd = ["O", "U", "R", " ", "R", " ", "V", "A", "L", "U", "E", " ", "I", "S", " ", "R", "G", "B", ":", definedR, " ", ",", "?", ",", "?"];
+           lettersToAdd3 = ["R", "G", "B", ":", definedR, ",", "0", ",", "0"];
+            
+       }
+ 
+    })
+
+console.log(lettersToAdd);
 
 let tryingToNavigate = false; //for loading next html
 let noFaceDetectedStartTime = null;
 const NO_FACE_DETECTED_THRESHOLD = 30000;
+
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL); // WEBGL due to animation 
@@ -63,15 +88,14 @@ function draw(){
   stroke(2);
   stroke(18, 69, 26);
 //call functions 
- typography(); 
  colourBlock();
+ typography(); 
  checkForPlayer();
 }
 
 
 // this function animates the text to come in letter by letter
 function typography() {
-
   image(topWords, -topWords.width/2, -300);
   push(); // the title
   topWords.fill(255);
@@ -107,7 +131,7 @@ push(); // repeat for second part of code
     letters3.push(lettersToAdd3.shift()); // Add the next letter from the array
     nextLetterTime = frameCount + delayBetweenLetters; //add next letter after 10 frames
   }
-
+  
   const spacing3 = 20;
   // Display the letters from the array
   for (let i = 0; i < letters3.length; i++) {
@@ -139,19 +163,14 @@ pop();
 }
 
 function colourBlock(){ //The Colour square that is the value of the R,G or B recieved
-    caption.fill(170,0,0);
+    caption.fill(definedR,0,0);
     caption.noStroke();
     caption.rect(25,25,300,300)
-   
+
   }
 
   function checkForPlayer() {
   if (lettersToAdd2.length === 0 && frameCount > nextLetterTime) { //only do this once all letter are typed
-    fetch("http://172.20.10.4:3000/colour", {
-      method: "POST", // Post the R value again if others have connected to the server
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({colour: 'R', value: 170}),
-    })
     fetch("http://172.20.10.4:3000/colour")
       .then(res => res.json())
       .then(res => {
@@ -162,14 +181,14 @@ function colourBlock(){ //The Colour square that is the value of the R,G or B re
           console.log(valB);
           setTimeout(() => {
             if (tryingToNavigate == false)//to make sure the html redirects as the next p5 sketch is drawn
-      window.location.href = "SecondA1.html";  // Open the next interface
+      window.location.href = "SecondRB.html";  // Open the next interface
           tryingToNavigate = true;
           }, 3000); // 3000 milliseconds = 3 seconds
         } else if (valG) {
           console.log(valG);
           setTimeout(() => {
             if (tryingToNavigate == false)//to make sure the html redirects as the next p5 sketch is drawn
-      window.location.href = "SecondA.html";  // Open the next interface
+      window.location.href = "SecondRG.html";  // Open the next interface
           tryingToNavigate = true;
           }, 3000); // 3000 milliseconds = 3 seconds
         } else {

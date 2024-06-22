@@ -1,3 +1,5 @@
+<!-- R AND G RESULTS -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,9 +19,29 @@ let delayFrames = 240; // 2 seconds to being
 let addedW = false; // Track if first letter has been added 
 let delayBetweenLetters = 5; // 1/6 of a second between letters
 let nextLetterTime = 0; // Track when to add the next letter
-let lettersToAdd = ["O","U","R"," ","B"," ","V","A","L","U","E"," ","I","S"," ","R","G","B",":","?",",","?",",","80"]; // Letters to add
+let lettersToAdd;
 let lettersToAdd2 = ["W","A","I","T","I","N","G"," ","F","O","R"," ","T","H","E"," ","F","I","N","A","L"," ","P","L","A","Y","E","R",".",".","."]; // Letters to add
-let lettersToAdd3 = ["R","G","B",":","170",",","0",",","80"];
+let lettersToAdd3;
+
+fetch("http://172.20.10.4:3000/Decidecolour")
+    .then(res => res.json())
+    .then(res => {
+      let valR = res.R;
+      let valB = res.B; 
+     console.log(valR);
+      
+      if (valR !== undefined && valB !== undefined) {
+        definedR = Math.ceil(valR);
+        definedB = Math.ceil(valB);
+        // console.log(definedR);
+          // Now create the arrays after definedR is set
+           lettersToAdd = ["O", "U", "R", " ", "R", " ", "V", "A", "L", "U", "E", " ", "I", "S", " ", "R", "G", "B", ":", "?", ",", "0", "?", ",", " ",  definedB];
+           lettersToAdd3 = ["R", "G", "B", ":", definedR, ",", "0", ",", definedB];
+            
+       }
+ 
+    })
+          
 
 let tryingToNavigate = false; //for loading next html
 
@@ -134,9 +156,9 @@ pop();
  
 }
 
-function colourBlock(){
+function colourBlock(){//The Colour square that is the value of the R and G recieved
      caption.push()
-    caption.fill(170,0,80);
+    caption.fill(definedR,0,definedB);
     caption.noStroke();
      caption.rect(25,25,300,300)
     caption.pop()
@@ -144,28 +166,33 @@ function colourBlock(){
 
 
   function checkForPlayer() {
-    fetch("http://172.20.10.4:3000/colour", {
-      method: "POST", // or 'PUT'
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({colour: 'B', value: 80}),
-    })
-    if (lettersToAdd2.length === 0 && frameCount > nextLetterTime) {
+    if (lettersToAdd2.length === 0 && frameCount > nextLetterTime) { //only see if B is recieved once all letters are typed
     fetch("http://172.20.10.4:3000/colour")
     .then(res => res.json())
     .then(res => {
-      // console.log(res);
-      let obj = res.find(o => o.colour === 'G');
-      console.log(obj);
-     if (obj !== undefined) {
-       setTimeout(() => {
-        if (tryingToNavigate == false)//to make sure the html redirects as the next p5 sketch is drawn
+      let valG = res.G;
+
+      if (valG) {
+          console.log(valG);
+          setTimeout(() => {
+            if (tryingToNavigate == false)//to make sure the html redirects as the next p5 sketch is drawn
       window.location.href = "FinalA.html";  // Open the next interface
           tryingToNavigate = true;
-     }, 3000); // 3000 milliseconds = 3 seconds
-     }
-     });
-    
-  }}
+          }, 3000); // 3000 milliseconds = 3 seconds
+        } else {
+          setTimeout(() => {
+            if (tryingToNavigate == false)//to make sure the html redirects as the next p5 sketch is drawn
+      window.location.href = "Index.html";  // Open the next interface
+          tryingToNavigate = true;
+          }, 30000); // 30 seconds = 3 seconds
+        }
+
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+}
+  
 
 
     </script>

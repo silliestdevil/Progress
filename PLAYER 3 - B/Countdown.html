@@ -1,80 +1,132 @@
+<!-- COMPLETED FACE TRACKING -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.js"></script>
-    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.8.0/lib/p5.js" type="text/javascript" ></script>
+    <title>Completed</title>
 </head>
-<body style=" overflow-y: hidden;  overflow-x: hidden; background-color: rgb(0, 0, 0);">
-    <script>
-        let countdown = 5; // Initialize countdown to 5 seconds
-let startTime;
-let frameCount = 0; // Keeps track of the frame count
-let delayFrames = 30; // Number of frames to wait before starting to type the first letter
-let delayBetweenLetters = 10; // Number of frames between each letter being added
-let waitingText = "Waiting..."; // Text to display with typewriter effect
-let letters = []; // Array to hold the letters as they are added
-let nextLetterTime = 0; // Time to add the next letter
+<!-- no scroll and green background-->
+<body style=" overflow-y: hidden;  overflow-x: hidden; background-color: rgb(34, 153, 84);">
 
+    <script>
+      let myFaceLandmarker;
+let faceLandmarks;
+let myCapture;
+let lastVideoTime = -1;
+let extra;
+
+let noFaceDetectedStartTime = null;
+const NO_FACE_DETECTED_THRESHOLD = 30000;
+
+let eyebrowRaised = false; // Flag to track if eyebrow is raised
+
+      let tryingToNavigate = false;
+        let angle = 0; // Initial angle for drawing the circle
+
+        const trackingConfig = {
+  doAcquireFaceMetrics: true,
+  cpuOrGpuString: "GPU", /* "GPU" or "CPU" */
+  maxNumFaces: 1, // number of faces to track
+};
+
+//------------------------------------------
+//loads the mediapipe Facelandmarker and sets up thhe fileset resolver for vision tasks
+async function preload() {
+  const mediapipe_module = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js');
+  FaceLandmarker = mediapipe_module.FaceLandmarker;
+  FilesetResolver = mediapipe_module.FilesetResolver;
+  
+  const vision = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.7/wasm"
+  );
+  
+  // Face Landmark Tracking:
+  // https://codepen.io/mediapipe-preview/pen/OJBVQJm
+  // https://developers.google.com/mediapipe/solutions/vision/face_landmarker
+	myFaceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+		numFaces: trackingConfig.maxNumFaces,
+		runningMode: "VIDEO",
+		outputFaceBlendshapes:trackingConfig.doAcquireFaceMetrics,
+		baseOptions: {
+			delegate: trackingConfig.cpuOrGpuString,
+			modelAssetPath:
+				"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+		},
+	});
+}
+
+//------------------------------------------
+//function to continously process video frames from the webcam using 'requestAnimationFrame'
+async function predictWebcam() {
+  let startTimeMs = performance.now();
+  if (lastVideoTime !== myCapture.elt.currentTime) {
+    if (myFaceLandmarker) {
+      faceLandmarks = myFaceLandmarker.detectForVideo(myCapture.elt,startTimeMs);
+    }
+    lastVideoTime = myCapture.elt.currentTime;
+  }
+  window.requestAnimationFrame(predictWebcam);
+}
+
+//-----
+      
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  startTime = millis(); // Record the start time
+  myCapture = createCapture(VIDEO);
 }
 
 function draw() {
-  background(0);
+  background(34, 153, 84);
+  drawCircle();
+  drawCheckMark(width / 2, height / 2, 100);
 
-  let currentTime = millis();
-  let elapsedTime = (currentTime - startTime) / 1000; // Calculate elapsed time in seconds
+  if (angle < TWO_PI) {
+    angle += 0.05; // Increment angle for the next frame
+  } else {
+    circleDrawn(); // Check if the circle is completed
+  }
 
-  drawText(elapsedTime);
-  frameCount++;
-
-  if (elapsedTime >= 5) {
-    drawCircle();
-
-    // Update the countdown every second after 5 seconds
-    if (frameCount % 60 == 0 && countdown > 0) {
-      countdown--;
-    } else if (countdown == 0) {
-      window.location.href = "FaceRecognition.html";
+  let faceDetected = false;
+  //call all functions and extra canvas
+  predictWebcam(); 
+  
+  if (faceDetected) {
+    noFaceDetectedStartTime = null; // Reset timer when a face is detected
+  } else {
+    if (!noFaceDetectedStartTime) {
+      noFaceDetectedStartTime = millis(); // Start timer when no face is detected
+    } else if (millis() - noFaceDetectedStartTime > NO_FACE_DETECTED_THRESHOLD) {
+      if (!tryingToNavigate) {
+        console.log("No face detected for more than 30 seconds. Redirecting...");
+        window.location.href = "Index.html"; // Redirect to the next interface
+        tryingToNavigate = true; // Mark navigation as initiated
+      }
     }
   }
 }
-function drawText(elapsedTime) {
-  fill(255);
-  textSize(25);
-  textFont("monospace");
-  textAlign(CENTER, CENTER);
 
-  // Add the letters of 'Waiting...' one by one until countdown begins
-  if (elapsedTime < 5 && letters.length < waitingText.length) {
-    if (frameCount >= nextLetterTime) {
-      letters.push(waitingText[letters.length]);
-      nextLetterTime = frameCount + delayBetweenLetters;
-    }
-  }
+function drawCheckMark(x, y, size) {
+  // Calculate coordinates for the check mark lines
+  let startX = x - size * 0.4;
+  let startY = y;
+  let midX = x - size * 0.05;
+  let midY = y + size * 0.30;
+  let endX = x + size * 0.45;
+  let endY = y - size * 0.5;
 
-  const spacing = 20; // Spacing between letters
-
-  // Display the letters on the canvas
-  let displayString = letters.join('');
-  text(displayString, width / 2, height / 2);
-
-
-  // Display the countdown if 5 seconds have passed
-  if (elapsedTime >= 5) {
-   // Clear the area where the countdown will be displayed
-   fill(0); // Set fill color to background color
-   stroke(0)
-   rectMode(CENTER); // Set rectangle mode to center
-   rect(width / 2, height / 2, 180, 50); // Draw a rectangle over the area
-
-   // Display the countdown
-   fill(255); // Reset fill color
-   text(countdown, width / 2, height / 2 );
-  }
+  // Draw the check mark
+  stroke(255);
+  strokeWeight(10);
+  noFill();
+  beginShape();
+  vertex(startX, startY);
+  vertex(midX, midY);
+  vertex(endX, endY);
+  endShape();
 }
 
 

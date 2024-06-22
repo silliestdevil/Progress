@@ -1,4 +1,4 @@
-<!-- R AND B RESULTS  -->
+<!-- R AND G RESULTS -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.js"></script>
     <title>Single</title>
 </head>
-
 <body style=" overflow-y: hidden;  overflow-x: hidden; background-color: rgb(0, 0, 0);"> 
     <script>
         //letter array 
@@ -20,9 +19,29 @@ let delayFrames = 240; // 2 seconds to being
 let addedW = false; // Track if first letter has been added 
 let delayBetweenLetters = 5; // 1/6 of a second between letters
 let nextLetterTime = 0; // Track when to add the next letter
-let lettersToAdd = ["O","U","R"," ","R"," ","V","A","L","U","E"," ","I","S"," ","R","G","B",":","170"," ", ",","?",",","?"]; // Letters to add
+let lettersToAdd;
 let lettersToAdd2 = ["W","A","I","T","I","N","G"," ","F","O","R"," ","T","H","E"," ","F","I","N","A","L"," ","P","L","A","Y","E","R",".",".","."]; // Letters to add
-let lettersToAdd3 = ["R","G","B",":","170",",","0",",","80"];
+let lettersToAdd3;
+
+fetch("http://172.20.10.4:3000/Decidecolour")
+    .then(res => res.json())
+    .then(res => {
+      let valR = res.R;
+      let valG = res.G; 
+     console.log(valR);
+      
+      if (valR !== undefined && valG !== undefined) {
+        definedR = Math.ceil(valR);
+        definedG = Math.ceil(valG);
+        // console.log(definedR);
+          // Now create the arrays after definedR is set
+           lettersToAdd = ["O", "U", "R", " ", "R", " ", "V", "A", "L", "U", "E", " ", "I", "S", " ", "R", "G", "B", ":", "?", ",", definedR, " ", "?", ",", "?"];
+           lettersToAdd3 = ["R", "G", "B", ":", definedR, ",", definedG, ",", "0"];
+            
+       }
+ 
+    })
+          
 
 let tryingToNavigate = false; //for loading next html
 
@@ -62,7 +81,7 @@ function draw(){
 
  typography(); 
  colourBlock();
- checkForPlayer()
+checkForPlayer();
 }
 
  
@@ -137,29 +156,24 @@ pop();
  
 }
 
-function colourBlock(){ //The Colour square that is the value of the R and B recieved
+function colourBlock(){//The Colour square that is the value of the R and G recieved
      caption.push()
-    caption.fill(170,0,80);
+    caption.fill(definedR,definedG,0);
     caption.noStroke();
      caption.rect(25,25,300,300)
     caption.pop()
   }
 
-  
+
   function checkForPlayer() {
-    fetch("http://172.20.10.4:3000/colour", {
-      method: "POST", // or 'PUT'
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({colour: 'R', value: 170}),
-    })
-    if (lettersToAdd2.length === 0 && frameCount > nextLetterTime) {//only see if G is recieved once all letter are typed
+    if (lettersToAdd2.length === 0 && frameCount > nextLetterTime) { //only see if B is recieved once all letters are typed
     fetch("http://172.20.10.4:3000/colour")
     .then(res => res.json())
     .then(res => {
-      let valG = res.G;
+      let valB = res.B;
 
-      if (valG) {
-          console.log(valG);
+      if (valB) {
+          console.log(valB);
           setTimeout(() => {
             if (tryingToNavigate == false)//to make sure the html redirects as the next p5 sketch is drawn
       window.location.href = "FinalA.html";  // Open the next interface
@@ -170,7 +184,7 @@ function colourBlock(){ //The Colour square that is the value of the R and B rec
             if (tryingToNavigate == false)//to make sure the html redirects as the next p5 sketch is drawn
       window.location.href = "Index.html";  // Open the next interface
           tryingToNavigate = true;
-          }, 30000); // 3000 milliseconds = 3 seconds
+          }, 30000); // 30 seconds = 3 seconds
         }
 
       })
@@ -178,7 +192,7 @@ function colourBlock(){ //The Colour square that is the value of the R and B rec
   }
 
 }
-
+  
 
 
     </script>

@@ -18,9 +18,8 @@ app.get("/waiting", (req, res, next) => {
 });
 
 app.post('/waiting', (req, res) => {
-  console.log("Received waiting request");
   waitings[req.body.waiting] = true;
-  console.log("Updated waitings:", waitings);
+  console.log(waitings);
   res.json(waitings);
 });
 
@@ -34,11 +33,12 @@ app.post('/colour', (req, res) => { //post request
 });
 
 app.get('/Decidecolour', (req, res) => { //get request
-  res.send(JSON.stringify(colours));
+  res.send(JSON.stringify(DecideColours));
 });
 
 app.post('/Decidecolour', (req, res) => { //post request 
-  DecideColours[req.body.DecideColour] = req.body.value;
+  DecideColours[req.body.Decidecolour] = req.body.value;
+  console.log("Decided Colour:", DecideColours);
   res.send(JSON.stringify(DecideColours));
 });
 
