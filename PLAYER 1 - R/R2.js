@@ -33,10 +33,7 @@ let fillValue;
 let freezeFill = false;
 let lastFillValue = fillValue; // Initialize with the initial fillValue
 
-var col ={r:0, g:0, b:0};
-
-var col ={r:0, g:0, b:0};
-
+let constraints1;
 // Works best with just one or two sets of landmarks.
 const trackingConfig = {
   doAcquireFaceMetrics: true,
@@ -89,13 +86,17 @@ function setup() {
   const canvas = createCanvas(800, 600);
   canvas.parent('p5-sketch');  // Attach the canvas to the div with id 'p5-sketch'
   myCapture = createCapture(VIDEO);
-
+//   constraints1 = { //Hollis Camera
+//     deviceId: "4133674ad01e27d49e5f11ebd1b69d7792bed34497a0e7e99d83f18c155093da",
+// kind: "videoinput",
+// label: "Logitech StreamCam (046d:0893)",
+// groupId: "34b794eb39832fc47b7896c3212da79c6a114d094ba7225b0828ccc818a4672f"
+//   }
   myCapture.size(320, 240);
   myCapture.hide();
   extra = createGraphics(windowWidth, 700);  // Instruction text
   extra.background(0);
   ColourPalette = createGraphics(300, 600); 
- 
 }
 function draw() { 
   background("black");
@@ -229,7 +230,7 @@ function drawFacePoints() { //draw the detected face landmarks
     } else if (millis() - noFaceDetectedStartTime > NO_FACE_DETECTED_THRESHOLD) {
       if (!tryingToNavigate) {
         console.log("No face detected for more than 30 seconds. Redirecting...");
-        window.location.href = "index.html"; // Redirect to the next interface
+        window.location.href = "Index.html"; // Redirect to the next interface
         tryingToNavigate = true; // Mark navigation as initiated
       }
     }
@@ -340,6 +341,14 @@ if (jawOpen && jawOpen.score >= 0.4) {
 // If eyebrow is raised, keep fillValue at the last value before eyebrow raise
 if (eyebrowRaised) {
   fillValue = lastFillValue;
+  fetch("http://172.20.10.4:3000/complete", {
+    method: "POST", // Post the R value again if others have connected to the server
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({colour: 'R'}),
+  })
+  setTimeout(() => {
+      window.location.href = "2Completed.html"; // Redirect after 3 seconds
+  }, 3000); // 3000 milliseconds = 3 seconds
 }
 
 
@@ -348,7 +357,7 @@ console.log("Fill Value:", fillValue);
   
 document.getElementById('red').value = fillValue;
 
- fetch("http://172.20.10.4:3000/colour", {
+ fetch("http://172.20.10.4:3000/TwoColour", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ colour: 'R', value: fillValue }),
@@ -391,20 +400,20 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
 }
 
  function myColor(){
-  fetch("http://172.20.10.4:3000/colour")
+  fetch("http://172.20.10.4:3000/TwoColour")
     .then(res => res.json())
     .then(res => {
-      let objB = res.find(o => o.colour === 'B');
-      let objG = res.find(o => o.colour === 'G');
+      let valB = res.B;
+      let valG = res.G;
 
-       if (objB !== undefined) {
-        document.getElementById('blue').value = objB.value; // Assuming objB.value is the correct value
-        console.log(objB);
+       if (valB !== undefined) {
+        document.getElementById('blue').value = valB; // Assuming objB.value is the correct value
+        console.log(valB);
        }
 
-   if (objG !== undefined) {
-       document.getElementById('green').value = objG.value; // Assuming objG.value is the correct value
-       console.log(objG);
+   if (valG !== undefined) {
+       document.getElementById('green').value = valG; // Assuming objG.value is the correct value
+       console.log(valG);
        }
 
       var red = document.getElementById('red').value;
@@ -414,10 +423,6 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
       // document.body.style.backgroundColor = color; 
       document.getElementById('box').value = color;
       document.getElementById('colorSquare').style.backgroundColor = color;
-      col.r = random(0,255);
-      col.g = random(0,255);
-      col.b = random(0,255);
-      document.getElementById('compareSquare').style.backgroundColor = (col.r, col.b, col.g);
     }
   )}
 
@@ -426,5 +431,8 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
     document.getElementById('blue').addEventListener('input', myColor);
 
     setInterval(myColor, 50);
+
+ 
+
 
 // Attach setRandomColor function to window.onload event

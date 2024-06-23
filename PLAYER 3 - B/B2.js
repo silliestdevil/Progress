@@ -33,7 +33,7 @@ let fillValue;
 let freezeFill = false;
 let lastFillValue = fillValue; // Initialize with the initial fillValue
 
-
+let constraints1;
 // Works best with just one or two sets of landmarks.
 const trackingConfig = {
   doAcquireFaceMetrics: true,
@@ -86,12 +86,17 @@ function setup() {
   const canvas = createCanvas(800, 600);
   canvas.parent('p5-sketch');  // Attach the canvas to the div with id 'p5-sketch'
   myCapture = createCapture(VIDEO);
+//   constraints1 = { //Hollis Camera
+//     deviceId: "4133674ad01e27d49e5f11ebd1b69d7792bed34497a0e7e99d83f18c155093da",
+// kind: "videoinput",
+// label: "Logitech StreamCam (046d:0893)",
+// groupId: "34b794eb39832fc47b7896c3212da79c6a114d094ba7225b0828ccc818a4672f"
+//   }
   myCapture.size(320, 240);
   myCapture.hide();
   extra = createGraphics(windowWidth, 700);  // Instruction text
   extra.background(0);
   ColourPalette = createGraphics(300, 600); 
- 
 }
 function draw() { 
   background("black");
@@ -105,7 +110,6 @@ function draw() {
   myColor();
   extra.textSize(18);
   extra.textFont("Courier")
-  getRandomColor();
 }
 
 //The text typing 
@@ -226,7 +230,7 @@ function drawFacePoints() { //draw the detected face landmarks
     } else if (millis() - noFaceDetectedStartTime > NO_FACE_DETECTED_THRESHOLD) {
       if (!tryingToNavigate) {
         console.log("No face detected for more than 30 seconds. Redirecting...");
-        window.location.href = "index.html"; // Redirect to the next interface
+        window.location.href = "Index.html"; // Redirect to the next interface
         tryingToNavigate = true; // Mark navigation as initiated
       }
     }
@@ -337,18 +341,26 @@ if (jawOpen && jawOpen.score >= 0.4) {
 // If eyebrow is raised, keep fillValue at the last value before eyebrow raise
 if (eyebrowRaised) {
   fillValue = lastFillValue;
+  fetch("http://172.20.10.4:3000/complete", {
+    method: "POST", // Post the R value again if others have connected to the server
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({colour: 'B'}),
+  })
+  setTimeout(() => {
+      window.location.href = "2Completed.html"; // Redirect after 3 seconds
+  }, 3000); // 3000 milliseconds = 3 seconds
 }
 
 
 console.log("Fill Value:", fillValue);
     
   
-document.getElementById('green').value = fillValue;
+document.getElementById('blue').value = fillValue;
 
- fetch("http://172.20.10.4:3000/colour", {
+ fetch("http://172.20.10.4:3000/TwoColour", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ colour: 'G', value: fillValue }),
+  body: JSON.stringify({ colour: 'B', value: fillValue }),
  })
  .then(response => {
   if (!response.ok) {
@@ -388,13 +400,22 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
 }
 
  function myColor(){
-  fetch("http://172.20.10.4:3000/colour")
-  .then(res => res.json())
-  .then(res => {
-  let objB = res.find(o => o.colour === 'colour: R, value: fillValue' );
-  let objG = res.find(o => o.colour === 'colour: B, value: fillValue');
-  })
-  
+  fetch("http://172.20.10.4:3000/TwoColour")
+    .then(res => res.json())
+    .then(res => {
+      let valR = res.R;
+      let valG = res.G;
+
+       if (valR !== undefined) {
+        document.getElementById('red').value = valR; // Assuming objB.value is the correct value
+        console.log(valR);
+       }
+
+   if (valG !== undefined) {
+       document.getElementById('green').value = valG; // Assuming objG.value is the correct value
+       console.log(valG);
+       }
+
       var red = document.getElementById('red').value;
       var green = document.getElementById('green').value;
       var blue = document.getElementById('blue').value;
@@ -403,21 +424,15 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
       document.getElementById('box').value = color;
       document.getElementById('colorSquare').style.backgroundColor = color;
     }
+  )}
 
     document.getElementById('red').addEventListener('input', myColor);
     document.getElementById('green').addEventListener('input', myColor);
     document.getElementById('blue').addEventListener('input', myColor);
 
-    function getRandomColor() {
-      var color = '#';
-      for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    }
-    
-    window.onload = function() {
-      document.body.style.backgroundColor = getRandomColor();
-    };
+    setInterval(myColor, 50);
+
+ 
+
 
 // Attach setRandomColor function to window.onload event

@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const app = express()
 let waitings = {R:false, G:false, B:false}
 let colours = {R:0, B:0, G:0}
+let TwoColours = {R:0, B:0, G:0}
 let DecideColours = {R:0, B:0, G:0}
 let complete = {R:false, G:false, B:false}
 app.use(bodyParser.json());
@@ -41,6 +42,17 @@ app.post('/Decidecolour', (req, res) => { //post request
   console.log("Decided Colour:", DecideColours);
   res.send(JSON.stringify(DecideColours));
 });
+
+app.get('/TwoColour', (req, res) => { //get request
+  res.send(JSON.stringify(TwoColours));
+});
+
+app.post('/TwoColour', (req, res) => { //post request 
+  TwoColours[req.body.TwoColour] = req.body.value;
+  console.log("Stage 2:", TwoColours);
+  res.send(JSON.stringify(TwoColours));
+});
+
 
 app.post('/complete', (req, res) => { //post request 
   console.log("got here");

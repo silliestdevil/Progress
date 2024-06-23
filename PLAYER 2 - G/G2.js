@@ -230,7 +230,7 @@ function drawFacePoints() { //draw the detected face landmarks
     } else if (millis() - noFaceDetectedStartTime > NO_FACE_DETECTED_THRESHOLD) {
       if (!tryingToNavigate) {
         console.log("No face detected for more than 30 seconds. Redirecting...");
-        window.location.href = "index.html"; // Redirect to the next interface
+        window.location.href = "Index.html"; // Redirect to the next interface
         tryingToNavigate = true; // Mark navigation as initiated
       }
     }
@@ -344,7 +344,7 @@ if (eyebrowRaised) {
   fetch("http://172.20.10.4:3000/complete", {
     method: "POST", // Post the R value again if others have connected to the server
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({colour: 'R'}),
+    body: JSON.stringify({colour: 'G'}),
   })
   setTimeout(() => {
       window.location.href = "2Completed.html"; // Redirect after 3 seconds
@@ -355,12 +355,12 @@ if (eyebrowRaised) {
 console.log("Fill Value:", fillValue);
     
   
-document.getElementById('red').value = fillValue;
+document.getElementById('green').value = fillValue;
 
  fetch("http://172.20.10.4:3000/TwoColour", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ colour: 'R', value: fillValue }),
+  body: JSON.stringify({ colour: 'G', value: fillValue }),
  })
  .then(response => {
   if (!response.ok) {
@@ -404,16 +404,16 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
     .then(res => res.json())
     .then(res => {
       let valB = res.B;
-      let valG = res.G;
+      let valR = res.R;
 
        if (valB !== undefined) {
         document.getElementById('blue').value = valB; // Assuming objB.value is the correct value
         console.log(valB);
        }
 
-   if (valG !== undefined) {
-       document.getElementById('green').value = valG; // Assuming objG.value is the correct value
-       console.log(valG);
+   if (valR !== undefined) {
+       document.getElementById('red').value = valR; // Assuming objG.value is the correct value
+       console.log(valR);
        }
 
       var red = document.getElementById('red').value;
