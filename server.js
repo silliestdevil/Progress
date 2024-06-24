@@ -14,6 +14,14 @@ app.use(function(req, res, next) {
   next();
 });
 
+app.get("/reset"), (req, res) => {
+waitings = {R:false, G:false, B:false}
+colours = {R:0, B:0, G:0}
+TwoColours = {R:0, B:0, G:0}
+DecideColours = {R:0, B:0, G:0}
+complete = {R:false, G:false, B:false}
+}
+
 app.get("/waiting", (req, res, next) => {
   res.json(waitings);
 });
@@ -58,11 +66,11 @@ app.post('/complete', (req, res) => { //post request
   console.log("got here");
   complete[req.body.colour] = true;
   console.log("complete", complete); 
-  res.send(state);
+  res.send(complete);
 });
 
 app.get('/complete', (req, res) => { //post request 
-  res.send(state);
+  res.send(complete);
 });
 
 // Server setup
