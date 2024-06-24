@@ -85,18 +85,50 @@ async function predictWebcam() {
 function setup() {
   const canvas = createCanvas(800, 600);
   canvas.parent('p5-sketch');  // Attach the canvas to the div with id 'p5-sketch'
-  myCapture = createCapture(VIDEO);
-//   constraints1 = { //Hollis Camera
-//     deviceId: "4133674ad01e27d49e5f11ebd1b69d7792bed34497a0e7e99d83f18c155093da",
-// kind: "videoinput",
-// label: "Logitech StreamCam (046d:0893)",
-// groupId: "34b794eb39832fc47b7896c3212da79c6a114d094ba7225b0828ccc818a4672f"
-//   }
-  myCapture.size(320, 240);
-  myCapture.hide();
+  navigator.mediaDevices.enumerateDevices()
+  .then(gotDevices)
+  .catch(handleError);
+console.log("Devices are", devices)
   extra = createGraphics(windowWidth, 700);  // Instruction text
   extra.background(0);
   ColourPalette = createGraphics(300, 600); 
+}
+
+function gotDevices(deviceInfos) {
+  for (let i = 0; i < deviceInfos.length; ++i) {
+    const deviceInfo = deviceInfos[i];
+    if (deviceInfo.kind === 'videoinput') {
+      devices.push({
+        label: deviceInfo.label,
+        id: deviceInfo.deviceId
+      });
+    }
+  }
+  console.log(devices);
+  if (devices.length > 0) {
+    startCapture(devices[1].id);
+  } else {
+    console.error("No video devices found.");
+  }
+}
+
+
+function startCapture(deviceId) {
+  let constraints = {
+    video: {
+      deviceId: { exact: deviceId }
+    }
+  };
+
+  myCapture = createCapture(constraints, function(stream) {
+    console.log('Stream 1 ready');
+  });
+  myCapture.size(320, 240);
+  myCapture.hide();
+}
+
+function handleError(error) {
+  console.error('Error: ', error);
 }
 function draw() { 
   background("black");

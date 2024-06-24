@@ -23,6 +23,7 @@ let nextLetterTime = 0; // Track when to add the next letter
 var definedR; 
 let definedB;
 let definedG; 
+let devices = [];
 
 let lettersToAdd;
 let lettersToAdd2 = ["W", "A", "I", "T", "I", "N", "G", " ", "F", "O", "R", " ", "O", "T", "H", "E", "R", " ", "P", "L", "A", "Y", "E", "R", "S", ".", ".", "."];
@@ -56,7 +57,11 @@ const NO_FACE_DETECTED_THRESHOLD = 30000;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL); // WEBGL due to animation 
-  myCapture = createCapture(VIDEO);
+  navigator.mediaDevices.enumerateDevices()
+  .then(gotDevices)
+  .catch(handleError);
+console.log("Devices are", devices)
+
   topWords = createGraphics(650, 100); //Canvas for first line of text
   topWords.background(0);
 
@@ -78,6 +83,43 @@ function setup() {
   caption.textFont('monospace'); 
 
  
+}
+
+function gotDevices(deviceInfos) {
+  for (let i = 0; i < deviceInfos.length; ++i) {
+    const deviceInfo = deviceInfos[i];
+    if (deviceInfo.kind === 'videoinput') {
+      devices.push({
+        label: deviceInfo.label,
+        id: deviceInfo.deviceId
+      });
+    }
+  }
+  console.log(devices);
+  if (devices.length > 0) {
+    startCapture(devices[1].id);
+  } else {
+    console.error("No video devices found.");
+  }
+}
+
+
+function startCapture(deviceId) {
+  let constraints = {
+    video: {
+      deviceId: { exact: deviceId }
+    }
+  };
+
+  myCapture = createCapture(constraints, function(stream) {
+    console.log('Stream 1 ready');
+  });
+  myCapture.size(320, 240);
+  myCapture.hide();
+}
+
+function handleError(error) {
+  console.error('Error: ', error);
 }
 
 

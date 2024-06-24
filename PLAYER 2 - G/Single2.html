@@ -13,6 +13,7 @@
     <script>
         //letter array 
 //RBG = 170, 183, 80
+let devices = [];
 let letters = []; // letter array 
 let letters2 = []; // letter array 
 let letters3 = []; // letter array
@@ -56,7 +57,10 @@ const NO_FACE_DETECTED_THRESHOLD = 30000;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL); // WEBGL due to animation 
-  myCapture = createCapture(VIDEO);
+  navigator.mediaDevices.enumerateDevices()
+  .then(gotDevices)
+  .catch(handleError);
+console.log("Devices are", devices)
   topWords = createGraphics(650, 100); //Canvas for first line of text
   topWords.background(0);
 
@@ -78,6 +82,43 @@ function setup() {
   caption.textFont('monospace'); 
 
  
+}
+
+function gotDevices(deviceInfos) {
+  for (let i = 0; i < deviceInfos.length; ++i) {
+    const deviceInfo = deviceInfos[i];
+    if (deviceInfo.kind === 'videoinput') {
+      devices.push({
+        label: deviceInfo.label,
+        id: deviceInfo.deviceId
+      });
+    }
+  }
+  console.log(devices);
+  if (devices.length > 0) {
+    startCapture(devices[0].id);
+  } else {
+    console.error("No video devices found.");
+  }
+}
+
+
+function startCapture(deviceId) {
+  let constraints = {
+    video: {
+      deviceId: { exact: deviceId }
+    }
+  };
+
+  myCapture = createCapture(constraints, function(stream) {
+    console.log('Stream 1 ready');
+  });
+  myCapture.size(320, 240);
+  myCapture.hide();
+}
+
+function handleError(error) {
+  console.error('Error: ', error);
 }
 
 

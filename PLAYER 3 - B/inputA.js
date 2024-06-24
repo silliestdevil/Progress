@@ -15,6 +15,7 @@ let extra;
 
 let eyebrowRaised = false; // Flag to track if eyebrow is raised
 
+let devices = [];
 let letters = []; // letter array 
 let letters2 = []; // letter array
 let delayFrames = 240; // 2 seconds to being 

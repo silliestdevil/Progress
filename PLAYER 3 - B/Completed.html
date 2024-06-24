@@ -18,6 +18,7 @@ let faceLandmarks;
 let myCapture;
 let lastVideoTime = -1;
 let extra;
+let devices = [];
 
 let noFaceDetectedStartTime = null;
 const NO_FACE_DETECTED_THRESHOLD = 30000;
@@ -76,7 +77,48 @@ async function predictWebcam() {
       
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  myCapture = createCapture(VIDEO);
+  navigator.mediaDevices.enumerateDevices()
+  .then(gotDevices)
+  .catch(handleError);
+console.log("Devices are", devices)
+
+}
+
+function gotDevices(deviceInfos) {
+  for (let i = 0; i < deviceInfos.length; ++i) {
+    const deviceInfo = deviceInfos[i];
+    if (deviceInfo.kind === 'videoinput') {
+      devices.push({
+        label: deviceInfo.label,
+        id: deviceInfo.deviceId
+      });
+    }
+  }
+  console.log(devices);
+  if (devices.length > 0) {
+    startCapture(devices[1].id);
+  } else {
+    console.error("No video devices found.");
+  }
+}
+
+
+function startCapture(deviceId) {
+  let constraints = {
+    video: {
+      deviceId: { exact: deviceId }
+    }
+  };
+
+  myCapture = createCapture(constraints, function(stream) {
+    console.log('Stream 1 ready');
+  });
+  myCapture.size(320, 240);
+  myCapture.hide();
+}
+
+function handleError(error) {
+  console.error('Error: ', error);
 }
 
 function draw() {
