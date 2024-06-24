@@ -330,5 +330,47 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
  //make the function fully green when its correct 
  //Notify whichever sender 
 
+  // Enumerate devices and start capture
+  // navigator.mediaDevices.enumerateDevices()
+  //   .then(gotDevices)
+  //   .catch(handleError);
+
+
+// function gotDevices(deviceInfos) {
+//   for (let i = 0; i < deviceInfos.length; ++i) {
+//     const deviceInfo = deviceInfos[i];
+//     if (deviceInfo.kind === 'videoinput') {
+//       devices.push({
+//         label: deviceInfo.label,
+//         id: deviceInfo.deviceId
+//       });
+//     }
+//   }
+//   console.log(devices);
+//   if (devices.length > 0) {
+//     startCapture(devices[0].id);
+//   } else {
+//     console.error("No video devices found.");
+//   }
+// }
+
+
+// function startCapture(deviceId) {
+//   let constraints = {
+//     video: {
+//       deviceId: { exact: deviceId }
+//     }
+//   };
+
+//   myCapture1 = createCapture(constraints, function(stream) {
+//     console.log('Stream 1 ready');
+//   });
+//   myCapture1.size(320, 240);
+//   myCapture1.hide();
+// }
+
+// function handleError(error) {
+//   console.error('Error: ', error);
+// }
 
  
