@@ -13,7 +13,7 @@ let myCapture;
 let lastVideoTime = -1;
 let extra;
 
-
+let devices = [];
 let eyebrowRaised = false; // Flag to track if eyebrow is raised
 
 let letters = []; // letter array 

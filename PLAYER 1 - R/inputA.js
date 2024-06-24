@@ -214,23 +214,23 @@ function drawFacePoints() { //draw the detected face landmarks
 image(detection, 200, 200); 
 detection.fill(255);
 detection.textSize(20);
-detection.textFont("Courier")
+detection.textFont("Courier");
 
-  if (faceDetected) {
-    noFaceDetectedStartTime = null; // Reset timer when a face is detected
-    detection.clear();
-  } else {
-    if (!noFaceDetectedStartTime) {
-      noFaceDetectedStartTime = millis(); // Start timer when no face is detected
-      detection.text("NO PLAYER DETECTED...", 20, 20)
-    } else if (millis() - noFaceDetectedStartTime > NO_FACE_DETECTED_THRESHOLD) {
-      if (!tryingToNavigate) {
-        console.log("No face detected for more than 30 seconds. Redirecting...");
-        window.location.href = "Index.html"; // Redirect to the next interface
-        tryingToNavigate = true; // Mark navigation as initiated
-      }
-    }//hello
-  }
+if (faceDetected) {
+  noFaceDetectedStartTime = null; // Reset timer when a face is detected
+  detection.clear();
+} else {
+  if (!noFaceDetectedStartTime) {
+    noFaceDetectedStartTime = millis(); // Start timer when no face is detected
+    detection.text("NO PLAYER DETECTED...", 20, 20)
+  } else if (millis() - noFaceDetectedStartTime > NO_FACE_DETECTED_THRESHOLD) {
+    if (!tryingToNavigate) {
+      console.log("No face detected for more than 30 seconds. Redirecting...");
+      window.location.href = "Index.html"; // Redirect to the next interface
+      tryingToNavigate = true; // Mark navigation as initiated
+    }
+  }//hello
+}
 }
 
 function drawFaceMetrics(){ //draw the calculated face metrics

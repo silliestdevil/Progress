@@ -16,6 +16,7 @@ let extra;
 let eyebrowRaised = false; // Flag to track if eyebrow is raised
 
 let letters = []; // letter array 
+let devices = [];
 let letters2 = []; // letter array
 let delayFrames = 240; // 2 seconds to being 
 let addedW = false; // Track if first letter has been added 
@@ -66,6 +67,7 @@ async function preload() {
 //function to continously process video frames from the webcam using 'requestAnimationFrame'
 async function predictWebcam() {
   let startTimeMs = performance.now();
+  console.log(myCapture);
   if (lastVideoTime !== myCapture.elt.currentTime) {
     if (myFaceLandmarker) {
       faceLandmarks = myFaceLandmarker.detectForVideo(myCapture.elt,startTimeMs);
@@ -79,14 +81,54 @@ async function predictWebcam() {
 ///setup function: Initializes the canvas and sets up the webcam capture
 function setup() {
   createCanvas(800, 600);
-  myCapture = createCapture(VIDEO);
-  myCapture.size(320, 240);
-  myCapture.hide();
+
+   navigator.mediaDevices.enumerateDevices()
+  .then(gotDevices)
+  .catch(handleError);
+console.log("Devices are", devices)
   extra = createGraphics(windowWidth,700);  //Intruction text
   extra.background(0);
   detection = createGraphics(400,400);  //Intruction text
   detection.background(0,0,0,0.1); 
 }
+
+function gotDevices(deviceInfos) {
+  for (let i = 0; i < deviceInfos.length; ++i) {
+    const deviceInfo = deviceInfos[i];
+    if (deviceInfo.kind === 'videoinput') {
+      devices.push({
+        label: deviceInfo.label,
+        id: deviceInfo.deviceId
+      });
+    }
+  }
+  console.log(devices);
+  if (devices.length > 0) {
+    startCapture(devices[0].id);
+  } else {
+    console.error("No video devices found.");
+  }
+}
+
+
+function startCapture(deviceId) {
+  let constraints = {
+    video: {
+      deviceId: { exact: deviceId }
+    }
+  };
+
+  myCapture = createCapture(constraints, function(stream) {
+    console.log('Stream 1 ready');
+  });
+  myCapture.size(320, 240);
+  myCapture.hide();
+}
+
+function handleError(error) {
+  console.error('Error: ', error);
+}
+
 
 function draw() { 
   background("black");
@@ -161,7 +203,7 @@ function drawVideoBackground() { //function to draw the webcam video feed as the
   } else {
     tint(255, 0, 0, 0);; // Reset tint
   }
-  image(myCapture, 0, 0, width, height);
+  image(myCapture, 0, 0, 320, 240);
   pop();
 
 }
@@ -331,46 +373,7 @@ function drawDiagnosticInfo() { //draw diagnostic information life frames per se
  //Notify whichever sender 
 
   // Enumerate devices and start capture
-  // navigator.mediaDevices.enumerateDevices()
-  //   .then(gotDevices)
-  //   .catch(handleError);
 
 
-// function gotDevices(deviceInfos) {
-//   for (let i = 0; i < deviceInfos.length; ++i) {
-//     const deviceInfo = deviceInfos[i];
-//     if (deviceInfo.kind === 'videoinput') {
-//       devices.push({
-//         label: deviceInfo.label,
-//         id: deviceInfo.deviceId
-//       });
-//     }
-//   }
-//   console.log(devices);
-//   if (devices.length > 0) {
-//     startCapture(devices[0].id);
-//   } else {
-//     console.error("No video devices found.");
-//   }
-// }
-
-
-// function startCapture(deviceId) {
-//   let constraints = {
-//     video: {
-//       deviceId: { exact: deviceId }
-//     }
-//   };
-
-//   myCapture1 = createCapture(constraints, function(stream) {
-//     console.log('Stream 1 ready');
-//   });
-//   myCapture1.size(320, 240);
-//   myCapture1.hide();
-// }
-
-// function handleError(error) {
-//   console.error('Error: ', error);
-// }
 
  
