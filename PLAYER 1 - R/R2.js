@@ -344,7 +344,7 @@ if (eyebrowRaised) {
   fetch("http://172.20.10.4:3000/complete", {
     method: "POST", // Post the R value again if others have connected to the server
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({colour: 'R'}),
+    body: JSON.stringify({complete: 'R'}),
   })
   setTimeout(() => {
       window.location.href = "2Completed.html"; // Redirect after 3 seconds
@@ -360,7 +360,7 @@ document.getElementById('red').value = fillValue;
  fetch("http://172.20.10.4:3000/TwoColour", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ colour: 'R', value: fillValue }),
+  body: JSON.stringify({ TwoColour: 'R', value: fillValue }),
  })
  .then(response => {
   if (!response.ok) {

@@ -23,6 +23,8 @@ let lettersToAdd = ["O","N","G","R","A","T","U","L","A","T","I","O","N","S"]; //
 let lettersToAdd2; // Letters to add
 let lettersToAdd3;
 
+let tryingToNavigate = false; //for loading next html
+
 fetch("http://172.20.10.4:3000/Decidecolour")
     .then(res => res.json())
     .then(res => {
